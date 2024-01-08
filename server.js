@@ -6,7 +6,7 @@ const userRoute = require("./routes/userRouter");
 const groceryRoute = require("./routes/groceryRouter");
 const app = express();
 
-console.log(process.env.MONGODB_URI);
+ 
 app.use(express.json());
 
 app.use("/", (req, res, next) => {
@@ -14,8 +14,14 @@ app.use("/", (req, res, next) => {
   next();
 });
 
-app.get("/user", userRoute);
+app.use("/user", userRoute);
 app.use("/grocery", groceryRoute);
+
+app.get("*",(req,res)=>{
+
+  res.status(404).json({message:"Invalid endpoint"})
+
+})
 
 mongoose
   .connect(process.env.MONGODB_URI)

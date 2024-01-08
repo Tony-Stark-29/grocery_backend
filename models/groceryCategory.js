@@ -52,9 +52,10 @@ groceryCategorySchema.statics.newItems=async function(_id,items)
         throw Error("items required");
     }
 
-
-
-
 }
+
+
+ 
+
 
 module.exports=mongoose.model("grocery_category",groceryCategorySchema);

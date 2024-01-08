@@ -1,11 +1,10 @@
 const groceryCategoryModel = require("../models/groceryCategory");
 
-const addNewActegory = async (req, res) => {
+const addNewCategory = async (req, res) => {
   try {
     const { category } = req.body;
     const newCategory = await groceryCategoryModel.newCategory(category);
-
-    res.status(200).json(newCategory);
+    res.status(200).json({ category });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -18,11 +17,10 @@ const getAllCategory = async (req, res) => {
       { _id: 0, category: 1 }
     );
 
-     let data=category.map((item)=>item.category);
-      
+    let data = category.map((item) => item.category);
 
     if (category) {
-      res.status(200).json({category:data});
+      res.status(200).json({ category: data });
     }
 
     if (!category) {
@@ -33,4 +31,4 @@ const getAllCategory = async (req, res) => {
   }
 };
 
-module.exports = { getAllCategory, addNewActegory };
+module.exports = { getAllCategory, addNewCategory };
