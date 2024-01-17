@@ -12,18 +12,13 @@ const addNewCategory = async (req, res) => {
 
 const getAllCategory = async (req, res) => {
   try {
-    const category = await groceryCategoryModel.find(
-      {},
-      { _id: 0, category: 1 }
-    );
+    const categories = await groceryCategoryModel.find({});
 
-    let data = category.map((item) => item.category);
-
-    if (category) {
-      res.status(200).json({ category: data });
+    if (categories) {
+      res.status(200).json({ categories });
     }
 
-    if (!category) {
+    if (!categories) {
       res.status(400).json({ error: category.message });
     }
   } catch (error) {

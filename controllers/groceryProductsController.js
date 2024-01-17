@@ -1,11 +1,34 @@
+const Joi=require('joi');
+
 const groceryProductModel = require("../models/groceryProducts");
 const groceryCategoryModel = require("../models/groceryCategory");
+
+
+const productJoiSchem=Joi.object({
+
+  name:Joi.string().required(),
+  category:Joi.string().required(),
+  description:Joi.string().required(),
+  price:Joi.number().required(),
+  unit:Joi.string().required(),
+  stock:Joi.number().required(),
+  offer:Joi.number(),
+  tags:Joi.array(),
+  imageUrl:Joi.string().required().label("Product Image"),
+})
+
 
 const addNewProduct = async (req, res) => {
   try {
     //const { category } = req.body;
     //const categoryId = await groceryProductModel.getId(category);
-    const data=req.body.item;
+    const data=req.body.item; 
+  
+    const notValidData=productJoiSchem.validate(data);
+    if(notValidData.error)
+    {
+        throw Error(notValidData.error);   
+    }
     const newProduct = await groceryProductModel.newProduct(data);
     res.status(200).json({ product: newProduct });
   } catch (error) {
