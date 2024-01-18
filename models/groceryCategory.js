@@ -7,7 +7,7 @@ const groceryCategorySchema = new Schema(
     category: {
       type: String,
       required: true,
-      unique:true
+      unique: true,
     },
     items: {
       type: [String],
@@ -18,44 +18,41 @@ const groceryCategorySchema = new Schema(
   }
 );
 
+groceryCategorySchema.statics.newCategory = async function (category) {
+  if (!category) {
+    throw Error("Category Required");
+  }
 
-groceryCategorySchema.statics.newCategory=async function(category)
-{
-    if(!category)
-    {
-        throw Error("Category Required");
-    }
+  const exists = await this.findOne({ category });
 
-    const exists=await this.findOne({category});
+  if (exists) {
+    throw Error("Category Already exists");
+  }
 
-    if(exists)
-    {
-        throw Error("Category Already exists");
-    }
+  const newCategory = await this.create({ category });
 
-    const newCategory=await this.create({category});
+  return newCategory;
+};
 
-    return newCategory;
+groceryCategorySchema.statics.newItems = async function (id, items) {
+  console.log("from modal - ", items.length, " - ", items);
 
-}
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new Error("Invalid Category Id");
+  }
 
+  if (!Array.isArray(items) || items.length === 0) {
+    throw new Error("Items must be a non-empty array");
+  }
 
-groceryCategorySchema.statics.newItems=async function(_id,items)
-{
+  const category = await this.findByIdAndUpdate(
+    id,
+    { $addToSet: { items } },
+    { new: true }
+  );
 
-    if(!category)
-    {
-        throw Error("Category required");
-    }
-    if(!items)
-    {
-        throw Error("items required");
-    }
+  console.log(category);
+  return category;
+};
 
-}
-
-
- 
-
-
-module.exports=mongoose.model("grocery_category",groceryCategorySchema);
+module.exports = mongoose.model("grocery_category", groceryCategorySchema);

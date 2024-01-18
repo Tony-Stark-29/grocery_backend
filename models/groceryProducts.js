@@ -48,12 +48,23 @@ groceryProductsSchema.statics.newProduct = async function (data) {
 
 
   const isProductExists=await this.findOne({name:data.name});
-  console.log(isProductExists);
+
   if(isProductExists)
   {
     throw Error(`A Product with the similar name exists `)
   }
   const newProduct = await this.create(data);
+  return newProduct;
+};
+
+groceryProductsSchema.statics.updateProduct = async function (data,id) {
+
+  const isProductExists=await this.findById(id);
+  if(!isProductExists)
+  {
+    throw Error(`Product does not exists`)
+  }
+  const newProduct = await this.findByIdAndUpdate(id,data,{new:true});
   return newProduct;
 };
 
