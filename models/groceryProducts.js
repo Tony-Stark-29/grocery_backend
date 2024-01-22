@@ -54,6 +54,7 @@ groceryProductsSchema.statics.newProduct = async function (data) {
     throw Error(`A Product with the similar name exists `)
   }
   const newProduct = await this.create(data);
+ 
   return newProduct;
 };
 
