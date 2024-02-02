@@ -10,7 +10,8 @@ const {
   getProductsByCategory,
   deleteProduct,
   updateProduct,
-  getProduct
+  getProduct,
+ 
 } = require("../controllers/groceryProductsController");
 const router = express.Router();
 
@@ -19,6 +20,7 @@ router.route("/category/:id").patch(updateCategoryItems);
 
 router.route("/products").post(addNewProduct).get(getAllProducts);
 router.route("/products/:category").get(getProductsByCategory);
-router.route("/product/:id").delete(deleteProduct).patch(updateProduct).get(getProduct);
+router.route("/product/:id").delete(deleteProduct).patch(updateProduct);
+router.route("/product/:param").get(getProduct);
 
 module.exports = router;

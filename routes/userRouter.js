@@ -1,20 +1,14 @@
-const express=require('express');
+const express = require("express");
+const router = express.Router();
 
-const router=express.Router();
+const {addCartItem,getAllCartItems ,setUser}=require("../controllers/userController");
 
-router.route("/login").get((req,res)=>{
 
-    res.status(200).json({msg:"Login user"})
+router.route("/login").get(setUser);
+router.route("/cart").post(addCartItem).get(getAllCartItems);
 
-});
-router.route("/signup").get((req,res)=>{
-
-    res.status(200).json({msg:"Signup user"})
-
+router.get("/", (req, res) => {
+  res.status(404).json({ msg: "Not Found" });
 });
 
-router.get("/",(req,res)=>{
-    res.status(404).json({msg:"Page Not Found"})
-})
-
-module.exports= router;
+module.exports = router;

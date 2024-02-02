@@ -5,8 +5,8 @@ const express = require("express");
 const userRoute = require("./routes/userRouter");
 const groceryRoute = require("./routes/groceryRouter");
 const app = express();
+const authenticate = require("./middleware/userAuth");
 
- 
 app.use(express.json());
 
 app.use("/", (req, res, next) => {
@@ -14,14 +14,14 @@ app.use("/", (req, res, next) => {
   next();
 });
 
-app.use("/user", userRoute);
 app.use("/grocery", groceryRoute);
 
-app.get("*",(req,res)=>{
+ 
+app.use("/user",authenticate ,userRoute);
 
-  res.status(404).json({message:"Invalid endpoint"})
-
-})
+app.get("*", (req, res) => {
+  res.status(404).json({ message: "Invalid endpoint" });
+});
 
 mongoose
   .connect(process.env.MONGODB_URI)
