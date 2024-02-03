@@ -1,9 +1,13 @@
 const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
- 
+
 const addressSchema = Schema({
   street: {
+    type: String,
+    required: true,
+  },
+  area: {
     type: String,
     required: true,
   },
@@ -15,7 +19,7 @@ const addressSchema = Schema({
     type: String,
     required: true,
   },
-  postalCode: {
+  pinCode: {
     type: String,
     required: true,
   },
@@ -25,7 +29,6 @@ const addressSchema = Schema({
   },
 });
 
- 
 const cartItemSchema = Schema({
   _id: {
     type: mongoose.Schema.Types.ObjectId,
@@ -56,6 +59,18 @@ const userSchema = new Schema({
     type: String,
     required: true,
   },
+  first_name:{
+    type:String
+  },
+  last_name:{
+    type:String
+  },
+  display_name:{
+    type:String
+  },
+  email:{
+    type:String
+  },
   phone_number: {
     type: String,
     required: true,
@@ -66,7 +81,7 @@ const userSchema = new Schema({
     type: [cartItemSchema],
     validate: {
       validator: function (value) {
-       console.log("value",value)
+        console.log("value", value);
         return (
           value &&
           value.length > 0 &&
@@ -80,7 +95,10 @@ const userSchema = new Schema({
 });
 
 userSchema.statics.setUser = async function (user) {
-  const userExist = await this.findOne({ _id: user?.user_id });
+  const userExist = await this.findOne(
+    { _id: user?.user_id },
+    { cartItems: 0, likedItems: 0, __v: 0, timestamps: 0 }
+  );
 
   if (userExist) {
     return userExist;

@@ -1,4 +1,4 @@
-const  mongoose  = require("mongoose");
+const mongoose = require("mongoose");
 const groceryProducts = require("../models/groceryProducts");
 const user = require("../models/user");
 const userModal = require("../models/user");
@@ -8,8 +8,9 @@ const setUser = async (req, res) => {
 
   try {
     const user = await userModal.setUser(req?.user);
+
     if (user) {
-      res.status(200).json({ user, msg: "Login user" });
+      res.status(200).json({ user });
     }
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -26,10 +27,8 @@ const isValidProduct = async (item) => {
 };
 
 const addCartItem = async (req, res) => {
-  console.log(req.body);
   const itemToAdd = req.body?.item;
   const user_id = req?.user?.user_id;
-  console.log(itemToAdd);
 
   try {
     const user = await userModal.findOne({ _id: user_id });
@@ -82,9 +81,9 @@ const getAllCartItems = async (req, res) => {
 const getCartItemsWithDetails = async (userId) => {
   try {
     console.log(userId);
-     
+
     const cartItemsWithDetails = await user.aggregate([
-      { $match: { _id:userId } },
+      { $match: { _id: userId } },
       {
         $unwind: "$cartItems",
       },
@@ -117,4 +116,21 @@ const getCartItemsWithDetails = async (userId) => {
   }
 };
 
-module.exports = { setUser, addCartItem, getAllCartItems };
+const updateUserDetails = async (req, res) => {
+  const userDetailsToUpdate = req.body;
+  const user_id = req?.user?.user_id;
+
+  try {
+    const updatedDetails = await userModal.findOneAndUpdate({ _id: user_id },userDetailsToUpdate,{new:true});
+
+    if (!updatedDetails) {
+      return res.status(400).json({ error: "User not found" });
+    }
+
+    res.status(200).json({ user:updatedDetails});
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+module.exports = { setUser, addCartItem, getAllCartItems, updateUserDetails };
