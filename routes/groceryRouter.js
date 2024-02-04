@@ -3,6 +3,7 @@ const {
   getAllCategory,
   addNewCategory,
   updateCategoryItems,
+
 } = require("../controllers/groceryCategoryController.");
 const {
   addNewProduct,
@@ -11,6 +12,7 @@ const {
   deleteProduct,
   updateProduct,
   getProduct,
+  getProductsWithOffer
  
 } = require("../controllers/groceryProductsController");
 const router = express.Router();
@@ -23,4 +25,5 @@ router.route("/products/:category").get(getProductsByCategory);
 router.route("/product/:id").delete(deleteProduct).patch(updateProduct);
 router.route("/product/:param").get(getProduct);
 
+router.route("/offers").get(getProductsWithOffer);
 module.exports = router;

@@ -2,33 +2,100 @@ const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 
-const addressSchema = Schema({
+const addressSchema = new Schema({
+  name: {
+    type: String,
+    required: true,
+    validate: {
+      validator: function (value) {
+        return value.trim().length > 0;
+      },
+      message: "Name is required.",
+    },
+  },
+  phone_number: {
+    type: String,
+    required: true,
+    validate: {
+      validator: function (value) {
+        return /^\+91\d{10}$/.test(value);
+      },
+      message:
+        'Invalid phone number. Must start with "+91" and be followed by 10 digits.',
+    },
+  },
+  email: {
+    type: String,
+    required: true,
+    validate: {
+      validator: function (value) {
+        return /\S+@\S+\.\S+/.test(value);
+      },
+      message: "Invalid email address.",
+    },
+  },
+
   street: {
     type: String,
     required: true,
+    validate: {
+      validator: function (value) {
+        return value.trim().length > 0;
+      },
+      message: "Street is required.",
+    },
   },
   area: {
     type: String,
     required: true,
+    validate: {
+      validator: function (value) {
+        return value.trim().length > 0;
+      },
+      message: "Area is required.",
+    },
   },
   city: {
     type: String,
     required: true,
+    validate: {
+      validator: function (value) {
+        return value.trim().length > 0;
+      },
+      message: "City is required.",
+    },
   },
   state: {
     type: String,
     required: true,
+    validate: {
+      validator: function (value) {
+        return value.trim().length > 0;
+      },
+      message: "State is required.",
+    },
   },
-  pinCode: {
+  pin_code: {
     type: String,
     required: true,
+    validate: {
+      validator: function (value) {
+        return /^\d{6}$/.test(value); 
+      },
+      message: "Invalid PIN code. Must be a 6-digit numeric value.",
+    },
   },
   country: {
     type: String,
     required: true,
+    validate: {
+      validator: function (value) {
+        return value.trim().length > 0;
+      },
+      message: "Country is required.",
+    },
   },
 });
-
 const cartItemSchema = Schema({
   _id: {
     type: mongoose.Schema.Types.ObjectId,
@@ -48,10 +115,6 @@ const likedItemSchema = Schema({
     ref: "grocery_products",
     required: true,
   },
-  quantity: {
-    type: Number,
-    required: true,
-  },
 });
 
 const userSchema = new Schema({
@@ -59,29 +122,28 @@ const userSchema = new Schema({
     type: String,
     required: true,
   },
-  first_name:{
-    type:String
+  first_name: {
+    type: String,
   },
-  last_name:{
-    type:String
+  last_name: {
+    type: String,
   },
-  display_name:{
-    type:String
+  display_name: {
+    type: String,
   },
-  email:{
-    type:String
+  email: {
+    type: String,
   },
   phone_number: {
     type: String,
     required: true,
   },
-  billing_address: addressSchema,
-  shipping_address: addressSchema,
+  billing_address: { type: addressSchema },
+  shipping_address: { type: addressSchema },
   cartItems: {
     type: [cartItemSchema],
     validate: {
       validator: function (value) {
-        console.log("value", value);
         return (
           value &&
           value.length > 0 &&

@@ -126,6 +126,21 @@ const deleteProduct = async (req, res) => {
   }
 };
 
+const getProductsWithOffer=async(req,res)=>{
+
+  try {
+    const products = await groceryProductModel.find(
+      {offer:{$gte:20}},
+      { createdAt: 0, updatedAt: 0, __v: 0 }
+    );
+  
+    res.status(200).json({ products });
+  } catch (error) {
+    res.status(400).json({});
+  }
+
+}
+
 module.exports = {
   addNewProduct,
   getAllProducts,
@@ -133,4 +148,5 @@ module.exports = {
   updateProduct,
   getProductsByCategory,
   getProduct,
+  getProductsWithOffer
 };

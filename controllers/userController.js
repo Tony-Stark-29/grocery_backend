@@ -121,7 +121,7 @@ const updateUserDetails = async (req, res) => {
   const user_id = req?.user?.user_id;
 
   try {
-    const updatedDetails = await userModal.findOneAndUpdate({ _id: user_id },userDetailsToUpdate,{new:true});
+    const updatedDetails = await userModal.findOneAndUpdate({ _id: user_id },userDetailsToUpdate,{new:true,runValidators: true });
 
     if (!updatedDetails) {
       return res.status(400).json({ error: "User not found" });
@@ -129,6 +129,12 @@ const updateUserDetails = async (req, res) => {
 
     res.status(200).json({ user:updatedDetails});
   } catch (error) {
+
+    console.log(error.message);
+     if (error.name === 'ValidationError') {
+      const formattedErrors = Object.values(error.errors).map(({ path }) =>  path);
+      return res.status(400).json({ error: "required fields :"+formattedErrors.join(', ') });
+    }
     res.status(400).json({ error: error.message });
   }
 };
