@@ -17,6 +17,30 @@ const setUser = async (req, res) => {
   }
 };
 
+const updateUserDetails = async (req, res) => {
+  const userDetailsToUpdate = req.body;
+  const user_id = req?.user?.user_id;
+
+  try {
+    const updatedDetails = await userModal.findOneAndUpdate({ _id: user_id },userDetailsToUpdate,{new:true,runValidators: true });
+
+    if (!updatedDetails) {
+      return res.status(400).json({ error: "User not found" });
+    }
+
+    res.status(200).json({ user:updatedDetails});
+  } catch (error) {
+
+    console.log(error.message);
+     if (error.name === 'ValidationError') {
+      const formattedErrors = Object.values(error.errors).map(({ path }) =>  path);
+      return res.status(400).json({ error: "required fields :"+formattedErrors.join(', ') });
+    }
+    res.status(400).json({ error: error.message });
+  }
+};
+
+
 const isValidProduct = async (item) => {
   console.log(item);
   const isProductExist = await groceryProducts.findById(item?._id);
@@ -55,7 +79,11 @@ const addCartItem = async (req, res) => {
 
     const updatedUser = await user.save();
 
-    res.status(200).json({ item: updatedUser.cartItems });
+    if(!updatedUser)
+    {
+      res.status(400).json({message:"Item Not added to Cart"})
+    }
+    res.status(200).json({message:"Item added to Cart"});
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -77,6 +105,7 @@ const getAllCartItems = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
 
 const getCartItemsWithDetails = async (userId) => {
   try {
@@ -116,27 +145,32 @@ const getCartItemsWithDetails = async (userId) => {
   }
 };
 
-const updateUserDetails = async (req, res) => {
-  const userDetailsToUpdate = req.body;
-  const user_id = req?.user?.user_id;
+const deleteCartItem=async(req,res)=>{
 
+  const user_id = req.user?.user_id;
+  const cartItemId=req.params.id;
   try {
-    const updatedDetails = await userModal.findOneAndUpdate({ _id: user_id },userDetailsToUpdate,{new:true,runValidators: true });
+    const userData = await userModal.findById(user_id);
 
-    if (!updatedDetails) {
-      return res.status(400).json({ error: "User not found" });
+    if (!userData) {
+      res.status(400).json({ error: userData?.error });
     }
 
-    res.status(200).json({ user:updatedDetails});
+    const updateCartItems = await user.findOneAndUpdate({_id:user_id},{$pull: { cartItems: { _id: new mongoose.Types.ObjectId(cartItemId) } }});
+
+    if(!updateCartItems)
+    {
+      res.status(400).json({message:"Error Item Deleted" });
+    }
+    res.status(200).json({message:"Item Deleted" });
   } catch (error) {
-
-    console.log(error.message);
-     if (error.name === 'ValidationError') {
-      const formattedErrors = Object.values(error.errors).map(({ path }) =>  path);
-      return res.status(400).json({ error: "required fields :"+formattedErrors.join(', ') });
-    }
     res.status(400).json({ error: error.message });
   }
-};
 
-module.exports = { setUser, addCartItem, getAllCartItems, updateUserDetails };
+  // $pull: { cartItems: { _id: new ObjectId(cartItemId) } }
+
+}
+
+
+
+module.exports = { setUser, addCartItem,deleteCartItem, getAllCartItems, updateUserDetails };
