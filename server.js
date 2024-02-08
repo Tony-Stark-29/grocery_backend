@@ -12,18 +12,18 @@ const app = express();
 
 app.use(helmet());
 
-// const whitelist = ["http://192.168.1.39:3000"];
-// const corsOptions = {
-//   origin: (origin, callback) => {
-//     if (whitelist.includes(origin)) {
-//       callback(null, true);
-//     } else {
-//       callback(new Error("Not allowed by CORS"));
-//     }
-//   },
-// };
+const whitelist = ["https://my-tasty-daily-mern-app.onrender.com"];
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (whitelist.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+};
 
-// app.use(cors(corsOptions));
+app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use("/", (req, res, next) => {
