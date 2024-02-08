@@ -8,11 +8,11 @@ const {
 const {
   addNewProduct,
   getAllProducts,
-  getProductsByCategory,
+  getProductsByCategory,  
   deleteProduct,
   updateProduct,
   getProduct,
-  getProductsWithOffer
+  getProductsWithOffer  
  
 } = require("../controllers/groceryProductsController");
 const router = express.Router();

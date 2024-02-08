@@ -96,6 +96,7 @@ const addressSchema = new Schema({
     },
   },
 });
+
 const cartItemSchema = Schema({
   _id: {
     type: mongoose.Schema.Types.ObjectId,
@@ -114,6 +115,12 @@ const likedItemSchema = Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "grocery_products",
     required: true,
+    validate: {
+      validator: function (value) {
+        return  mongoose.Types.ObjectId.isValid(value);
+      },
+      message: "Invalid Id",
+    },
   },
 });
 

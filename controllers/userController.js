@@ -22,24 +22,30 @@ const updateUserDetails = async (req, res) => {
   const user_id = req?.user?.user_id;
 
   try {
-    const updatedDetails = await userModal.findOneAndUpdate({ _id: user_id },userDetailsToUpdate,{new:true,runValidators: true });
+    const updatedDetails = await userModal.findOneAndUpdate(
+      { _id: user_id },
+      userDetailsToUpdate,
+      { new: true, runValidators: true }
+    );
 
     if (!updatedDetails) {
       return res.status(400).json({ error: "User not found" });
     }
 
-    res.status(200).json({ user:updatedDetails});
+    res.status(200).json({ user: updatedDetails });
   } catch (error) {
-
     console.log(error.message);
-     if (error.name === 'ValidationError') {
-      const formattedErrors = Object.values(error.errors).map(({ path }) =>  path);
-      return res.status(400).json({ error: "required fields :"+formattedErrors.join(', ') });
+    if (error.name === "ValidationError") {
+      const formattedErrors = Object.values(error.errors).map(
+        ({ path }) => path
+      );
+      return res
+        .status(400)
+        .json({ error: "required fields :" + formattedErrors.join(", ") });
     }
     res.status(400).json({ error: error.message });
   }
 };
-
 
 const isValidProduct = async (item) => {
   console.log(item);
@@ -79,11 +85,10 @@ const addCartItem = async (req, res) => {
 
     const updatedUser = await user.save();
 
-    if(!updatedUser)
-    {
-      res.status(400).json({message:"Item Not added to Cart"})
+    if (!updatedUser) {
+      res.status(400).json({ message: "Item Not added to Cart" });
     }
-    res.status(200).json({message:"Item added to Cart"});
+    res.status(200).json({ message: "Item added to Cart" });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -106,11 +111,8 @@ const getAllCartItems = async (req, res) => {
   }
 };
 
-
 const getCartItemsWithDetails = async (userId) => {
   try {
-    console.log(userId);
-
     const cartItemsWithDetails = await user.aggregate([
       { $match: { _id: userId } },
       {
@@ -145,10 +147,9 @@ const getCartItemsWithDetails = async (userId) => {
   }
 };
 
-const deleteCartItem=async(req,res)=>{
-
+const deleteCartItem = async (req, res) => {
   const user_id = req.user?.user_id;
-  const cartItemId=req.params.id;
+  const cartItemId = req.params.id;
   try {
     const userData = await userModal.findById(user_id);
 
@@ -156,21 +157,104 @@ const deleteCartItem=async(req,res)=>{
       res.status(400).json({ error: userData?.error });
     }
 
-    const updateCartItems = await user.findOneAndUpdate({_id:user_id},{$pull: { cartItems: { _id: new mongoose.Types.ObjectId(cartItemId) } }});
+    const updateCartItems = await user.findOneAndUpdate(
+      { _id: user_id },
+      { $pull: { cartItems: { _id: new mongoose.Types.ObjectId(cartItemId) } } }
+    );
 
-    if(!updateCartItems)
-    {
-      res.status(400).json({message:"Error Item Deleted" });
+    if (!updateCartItems) {
+      res.status(400).json({ message: "Error Item Deleted" });
     }
-    res.status(200).json({message:"Item Deleted" });
+    res.status(200).json({ message: "Item Deleted" });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 
   // $pull: { cartItems: { _id: new ObjectId(cartItemId) } }
+};
 
-}
+const addLikedItem = async (req, res) => {
+  const { id } = req.params;
+  const user_id = req.user?.user_id;
 
+  try {
+    const user = await userModal.findOne({ _id: user_id });
 
+    if (!user) {
+      return res.status(400).json({ error: "User not found" });
+    }
 
-module.exports = { setUser, addCartItem,deleteCartItem, getAllCartItems, updateUserDetails };
+    console.log(new mongoose.Types.ObjectId(id));
+    user.likedItems.push({ productId: new mongoose.Types.ObjectId(id) });
+
+    const updatedUser = await user.save();
+
+    if (!updatedUser) {
+      res.status(400).json({ message: "Item Not added" });
+    }
+    res.status(200).json({ message: "Item Added" });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+const getLikedItemsWithDetails = async (userId) => {
+  try {
+    const likedItemsWithDetails = await user.aggregate([
+      { $match: { _id: userId } },
+      {
+        $unwind: "$likedItems",
+      },
+      {
+        $lookup: {
+          from: "grocery_products",
+          localField: "likedItems.productId",
+          foreignField: "_id",
+          as: "productDetails",
+        },
+      },
+      {
+        $unwind: "$productDetails",
+      },
+      {
+        $project: {
+          _id: "$cartItems._id",
+          name: "$productDetails.name",
+          description:"$productDetails.description",
+          imageUrl: "$productDetails.imageUrl",
+          price: "$productDetails.price",
+          stock:"$productDetails.stock"
+        },
+      },
+    ]);
+
+    return likedItemsWithDetails;
+  } catch (error) {
+    console.error("Error getting cart items with details:", error);
+    throw error;
+  }
+};
+
+const getAllLikedItems = async (req, res) => {
+  const user_id = req.user?.user_id;
+  try {
+    const userData = await userModal.findById(user_id);
+    if (!userData) {
+      res.status(400).json({ error: userData?.error });
+    }
+    const likedItemWithDetails = await getLikedItemsWithDetails(user_id);
+    res.status(200).json({ likedItems: likedItemWithDetails });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+module.exports = {
+  setUser,
+  addCartItem,
+  deleteCartItem,
+  getAllCartItems,
+  updateUserDetails,
+  addLikedItem,
+  getAllLikedItems
+};
